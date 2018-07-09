@@ -14,7 +14,7 @@ app
   .use(config.app.defaultRoute, routes);
 
 app.disable('x-powered-by');
-// app.enable('trust proxy');
+app.enable('trust proxy');
 
 errorHandler(app);
 

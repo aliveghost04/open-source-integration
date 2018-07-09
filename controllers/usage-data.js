@@ -1,11 +1,15 @@
 'use strict';
 
-const query = require('../models');
+const Model = require('../models');
 const ErrorFactory = require('../middlewares/error');
 
 module.exports = {
   register(user, ip) {
-    return query(
+    return Model
+      .getConnection()
+      .then((connection) => {
+        
+      }).query(
       `INSERT INTO usage_data (user, ip, access_date)
       VALUES (?, ?, NOW())`,
       [
@@ -20,5 +24,12 @@ module.exports = {
         return Promise.reject(ErrorFactory('CAN_NOT_REGISTER_USAGE_DATA'));
       }
     });
+  },
+  get(user, from, to) {
+    let sql = `SELECT user, ip, access_date
+    FROM usage_data 
+    WHERE user like '%?%'
+      and access_data >= ?
+      and access_data <= ?`;
   }
 };

@@ -5,16 +5,18 @@ const mysql = require('mysql');
 
 const pool = mysql.createPool(config.database);
 
-module.exports = function Query(query, data) {
-  return new Promise((res, rej) => {
-    pool
-      .getConnection((err, connection) => {
-        if (err) return rej(err);
+const methods = {
+  getConnection() {
+    return new Promise((res, rej) => {
+      pool
+        .getConnection((err, connection) => {
+          if (err) return rej(err);
 
-        res(connection)
-      });
-  })
-  .then((connection) => {
+          res(connection)
+        });
+    });
+  },
+  query(connection, query, data) {
     return new Promise((res, rej) => {
       connection
         .query(
@@ -27,5 +29,39 @@ module.exports = function Query(query, data) {
           }
         );
     });
-  });
+  },
+  beginTransaction(connection) {
+    return new Promise((res, rej) => {
+      connection.beginTransaction((err) => {
+        if (err) return rej(err);
+
+        res();
+      });
+    });
+  },
+  commit(connection) {
+    return new Promise((res, rej) => {
+      connection.commit((err) => {
+        if (err) {
+          methods
+            .rollback(connection)
+            .then(() => {
+              return rej(err);
+            })
+            .catch(rej);
+        }
+
+        res();
+      });
+    });
+  },
+  rollback(connection) {
+    return new Promise((res, rej) => {
+      connection.rollback(() => {
+        res();
+      });
+    });
+  }
 };
+
+module.exports = methods;
