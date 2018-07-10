@@ -1,35 +1,31 @@
 'use strict';
 
-const Model = require('../models');
+const UsageDataModel = require('../models/usage-data');
 const ErrorFactory = require('../middlewares/error');
 
-module.exports = {
-  register(user, ip) {
-    return Model
-      .getConnection()
-      .then((connection) => {
-        
-      }).query(
-      `INSERT INTO usage_data (user, ip, access_date)
-      VALUES (?, ?, NOW())`,
-      [
-        user,
-        ip
-      ]
-    )
-    .then((results) => {
-      if (results.insertedRows === 1) {
-        return Promise.resolve();
-      } else {
-        return Promise.reject(ErrorFactory('CAN_NOT_REGISTER_USAGE_DATA'));
-      }
-    });
-  },
-  get(user, from, to) {
-    let sql = `SELECT user, ip, access_date
-    FROM usage_data 
-    WHERE user like '%?%'
-      and access_data >= ?
-      and access_data <= ?`;
-  }
-};
+module.exports = function UsageDataController(Model) {
+  return {
+    get(user, from, to, userId, clientIp) {
+      const usageDataModel = UsageDataModel(Model);
+      let _usageData;
+
+      return Promise.all([
+        usageDataModel
+          .get(user, from, to),
+        usageDataModel
+          .register(userId, clientIp, 'usage-data')
+      ])
+      .then(([ usageData, insert ]) => {
+        if (usageData.length > 0) {
+          if (insert.affectedRows === 1) {
+            return Promise.resolve(usageData);
+          } else {
+            return Promise.reject(ErrorFactory('CAN_NOT_REGISTER_USAGE_DATA'));
+          }
+        } else {
+          return Promise.reject(ErrorFactory('SERVICE_NOT_FOUND'));
+        }
+      });
+    }
+  };
+}

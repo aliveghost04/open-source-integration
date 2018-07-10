@@ -1,33 +1,35 @@
 'use strict';
 
-const ExchangeRateModel = require('../models/exchange-rate');
+const InflationRateModel = require('../models/inflation-rate');
 const UsageDataModel = require('../models/usage-data');
 const ErrorFactory = require('../middlewares/error');
 
-module.exports = function ExchangeRateController(model) {
-  const exchangeRateModel = ExchangeRateModel(model);
+module.exports = function InflationRateController(model) {
+  const inflationRateModel = InflationRateModel(model);
   const usageDataModel = UsageDataModel(model);
 
   return { 
-    get(currencyCode, userId, clientIp) {
+    get(year, month, userId, clientIp) {
       return Promise.all([
-        exchangeRateModel
-          .get(currencyCode),
+        inflationRateModel
+          .get(year, month),
         usageDataModel
-          .register(userId, clientIp, 'exchange-rate')
+          .register(userId, clientIp, 'inflation-rate')
       ])
       .then(([ results, insert ]) => {
         if (results.length === 1) {
           if (insert.affectedRows === 1) {
             return Promise.resolve({
-              exchangeRate: results[0].exchange_value,
-              lastUpdate: results[0].updated_at,
+              inflationRate: results[0].value,
+              month: results[0].month,
+              year: results[0].year,
+              createdAt: results[0].created_at
             });
           } else {
             return Promise.reject(ErrorFactory('CAN_NOT_REGISTER_USAGE_DATA'));
           }
         } else {
-          return Promise.reject(ErrorFactory('CURRENCY_CODE_NOT_FOUND'));
+          return Promise.reject(ErrorFactory('INFLATION_RATE_NOT_FOUND'));
         }
       });
     }

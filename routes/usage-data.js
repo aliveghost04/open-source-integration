@@ -1,34 +1,37 @@
-﻿'use strict';
+'use strict';
 
 const router = require('express').Router();
 const ErrorFactory = require('../middlewares/error');
-const ExchangeRateController = require('../controllers/exchange-rate');
+const UsageDataController = require('../controllers/usage-data');
 
 router
-  .route('/:currencyCode?')
+  .route('/:name?')
   .get((req, res, next) => {
     const model = req._database;
-    const exchangeRateController = ExchangeRateController(model);
-    let _exchangeRate;
+    const usageDataController = UsageDataController(model);
+    let _usageData;
 
-    if (req.params.currencyCode) {
+    if (req.params.name) {
       return model
         .beginTransaction()
         .then(() => {
-          return exchangeRateController.get(
-            req.params.currencyCode,
-            req.user.id,
-            req.ip
-          );
+          return usageDataController
+            .get(
+              req.params.name,
+              req.query.from,
+              req.query.to,
+              req.user.id,
+              req.ip
+            );
         })
-        .then((exchangeRate) => {
-          _exchangeRate = exchangeRate;
+        .then((usageData) => {
+          _usageData = usageData;
 
           return model
             .commit();
         })
         .then(() => {
-          res.json(_exchangeRate);
+          res.json(_usageData);
         })
         .catch((err) => {
           model
@@ -37,7 +40,7 @@ router
             .catch(next);
         });
     } else {
-      next(ErrorFactory('MISSING_CURRENCY_CODE'));
+      next(ErrorFactory('MISSING_SERVICE_NAME'));
     }
   })
   .all((req, res, next) => {

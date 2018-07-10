@@ -1,34 +1,34 @@
-﻿'use strict';
+'use strict';
 
 const router = require('express').Router();
 const ErrorFactory = require('../middlewares/error');
-const ExchangeRateController = require('../controllers/exchange-rate');
+const CreditHistoryController = require('../controllers/credit-history');
 
 router
-  .route('/:currencyCode?')
+  .route('/:cedulaRnc')
   .get((req, res, next) => {
     const model = req._database;
-    const exchangeRateController = ExchangeRateController(model);
-    let _exchangeRate;
+    const creditHistoryController = CreditHistoryController(model);
+    let _creditHistory;
 
-    if (req.params.currencyCode) {
+    if (req.params.cedulaRnc) {
       return model
         .beginTransaction()
         .then(() => {
-          return exchangeRateController.get(
-            req.params.currencyCode,
+          return creditHistoryController.get(
+            req.params.cedulaRnc,
             req.user.id,
             req.ip
           );
         })
-        .then((exchangeRate) => {
-          _exchangeRate = exchangeRate;
+        .then((creditHistory) => {
+          _creditHistory = creditHistory;
 
           return model
             .commit();
         })
         .then(() => {
-          res.json(_exchangeRate);
+          res.json(_creditHistory);
         })
         .catch((err) => {
           model

@@ -4,7 +4,7 @@ const config = require('../config');
 
 module.exports = {
   parseAuthentication(req, res, next) {
-    const authorizationHeader = req.headers['Authorization'];
+    const authorizationHeader = req.headers['authorization'];
 
     if (authorizationHeader) {
       const token = authorizationHeader.split(' ').pop();

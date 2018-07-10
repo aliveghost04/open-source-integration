@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/error-handler');
+const connectionHandler = require('./middlewares/connection-handler');
 const routes = require('./routes');
 const config = require('./config');
 const cors = require('cors');
@@ -9,6 +10,7 @@ const bodyParser = require('body-parser');
 
 app
   .use(cors(config.cors))
+  .use(connectionHandler)
   .use(bodyParser.json())
   .use(auth.parseAuthentication)
   .use(config.app.defaultRoute, routes);

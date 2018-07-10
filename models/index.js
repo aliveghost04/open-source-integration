@@ -1,67 +1,57 @@
 'use strict';
 
-const config = require('../config');
-const mysql = require('mysql');
+module.exports = function Model(connection) {
+  let methods = {
+    getConnection() {
+      return Promise.resolve(connection);
+    },
+    query(query, data) {
+      return new Promise((res, rej) => {
+        connection
+          .query(
+            query,
+            data,
+            (err, results) => {
+              if (err) return rej(err);
 
-const pool = mysql.createPool(config.database);
-
-const methods = {
-  getConnection() {
-    return new Promise((res, rej) => {
-      pool
-        .getConnection((err, connection) => {
+              res(results);
+            }
+          );
+      });
+    },
+    beginTransaction() {
+      return new Promise((res, rej) => {
+        connection.beginTransaction((err) => {
           if (err) return rej(err);
 
-          res(connection)
+          res();
         });
-    });
-  },
-  query(connection, query, data) {
-    return new Promise((res, rej) => {
-      connection
-        .query(
-          query,
-          data,
-          (err, results) => {
-            if (err) return rej(err);
-
-            res(results);
+      });
+    },
+    commit() {
+      return new Promise((res, rej) => {
+        connection.commit((err) => {
+          if (err) {
+            methods
+              .rollback(connection)
+              .then(() => {
+                return rej(err);
+              })
+              .catch(rej);
           }
-        );
-    });
-  },
-  beginTransaction(connection) {
-    return new Promise((res, rej) => {
-      connection.beginTransaction((err) => {
-        if (err) return rej(err);
 
-        res();
+          res();
+        });
       });
-    });
-  },
-  commit(connection) {
-    return new Promise((res, rej) => {
-      connection.commit((err) => {
-        if (err) {
-          methods
-            .rollback(connection)
-            .then(() => {
-              return rej(err);
-            })
-            .catch(rej);
-        }
+    },
+    rollback() {
+      return new Promise((res, rej) => {
+        connection.rollback(() => {
+          res();
+        });
+      });
+    }
+  };
 
-        res();
-      });
-    });
-  },
-  rollback(connection) {
-    return new Promise((res, rej) => {
-      connection.rollback(() => {
-        res();
-      });
-    });
-  }
-};
-
-module.exports = methods;
+  return methods;
+}
