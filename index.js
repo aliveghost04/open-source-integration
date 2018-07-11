@@ -20,6 +20,6 @@ app.enable('trust proxy');
 
 errorHandler(app);
 
-app.listen(config.app.port, config.app.host, () => (
+app.listen(config.app.port, () => (
   console.log(`Public web services api started listening on ${config.app.host}:${config.app.port} at ${Date()}`)
 ));
