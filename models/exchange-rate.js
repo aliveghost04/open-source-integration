@@ -9,7 +9,7 @@ module.exports = function ExchangeRateModel(Model) {
           FROM exchanges_rates
           WHERE code = ?
           ORDER BY updated_at DESC
-          LIMIT 1`,
+          LIMIT 10`,
           [ currencyCode ]
         );
     }

@@ -9,36 +9,20 @@ router
   .get((req, res, next) => {
     const model = req._database;
     const usageDataController = UsageDataController(model);
-    let _usageData;
 
     if (req.params.name) {
-      return model
-        .beginTransaction()
-        .then(() => {
-          return usageDataController
-            .get(
-              req.params.name,
-              req.query.from,
-              req.query.to,
-              req.user.id,
-              req.ip
-            );
-        })
+      return usageDataController
+        .get(
+          req.params.name,
+          req.query.from,
+          req.query.to,
+          req.user.id,
+          req.ip
+        )
         .then((usageData) => {
-          _usageData = usageData;
-
-          return model
-            .commit();
+          res.json(usageData);
         })
-        .then(() => {
-          res.json(_usageData);
-        })
-        .catch((err) => {
-          model
-            .rollback()
-            .then(() => next(err))
-            .catch(next);
-        });
+        .catch(next);
     } else {
       next(ErrorFactory('MISSING_SERVICE_NAME'));
     }

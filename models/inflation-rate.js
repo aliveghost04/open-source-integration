@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function ExchangeRateModel(Model) {
+module.exports = function InflationRateModel(Model) {
   return {
     get(year, month) {
       return Model

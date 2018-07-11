@@ -9,33 +9,18 @@ router
   .get((req, res, next) => {
     const model = req._database;
     const exchangeRateController = ExchangeRateController(model);
-    let _exchangeRate;
 
     if (req.params.currencyCode) {
-      return model
-        .beginTransaction()
-        .then(() => {
-          return exchangeRateController.get(
-            req.params.currencyCode,
-            req.user.id,
-            req.ip
-          );
-        })
+      return exchangeRateController
+        .get(
+          req.params.currencyCode,
+          req.user.id,
+          req.ip
+        )
         .then((exchangeRate) => {
-          _exchangeRate = exchangeRate;
-
-          return model
-            .commit();
+          res.json(exchangeRate);
         })
-        .then(() => {
-          res.json(_exchangeRate);
-        })
-        .catch((err) => {
-          model
-            .rollback()
-            .then(() => next(err))
-            .catch(next);
-        });
+        .catch(next);
     } else {
       next(ErrorFactory('MISSING_CURRENCY_CODE'));
     }

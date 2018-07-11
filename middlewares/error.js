@@ -44,6 +44,10 @@ const errors = {
   'CREDIT_HISTORY_NOT_FOUND': {
     message: 'Can not found credit history for the especified cedula/rnc',
     status: 404
+  },
+  'CLIENT_NOT_FOUND': {
+    message: 'Can not found client for the especified cedula/rnc',
+    status: 404
   }
 };
 

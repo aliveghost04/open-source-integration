@@ -9,7 +9,6 @@ router
   .get((req, res, next) => {
     const model = req._database;
     const inflationRateController = InflationRateController(model);
-    let _inflationRate;
 
     if (req.params.date) {
       let date = Number(req.params.date);
@@ -20,32 +19,17 @@ router
 
       let [, year, month] = /^(\d{4})(\d{2})$/.exec(req.params.date);
 
-      return model
-        .beginTransaction()
-        .then(() => {
-          return inflationRateController
-            .get(
-              year,
-              month,
-              req.user.id,
-              req.ip
-            );
-        })
+      return inflationRateController
+        .get(
+          year,
+          month,
+          req.user.id,
+          req.ip
+        )
         .then((inflationRate) => {
-          _inflationRate = inflationRate;
-
-          return model
-            .commit();
+          res.json(inflationRate);
         })
-        .then(() => {
-          res.json(_inflationRate);
-        })
-        .catch((err) => {
-          model
-            .rollback()
-            .then(() => next(err))
-            .catch(next);
-        });
+        .catch(next);
     } else {
       next(ErrorFactory('INFLATION_INVALID_DATE_FORMAT'));
     }

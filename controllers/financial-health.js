@@ -1,44 +1,39 @@
 'use strict';
 
-const InflationRateModel = require('../models/inflation-rate');
+const FinancialHealthModel = require('../models/financial-health');
 const UsageDataModel = require('../models/usage-data');
 const ErrorFactory = require('../middlewares/error');
 
-module.exports = function InflationRateController(model) {
-  const inflationRateModel = InflationRateModel(model);
+module.exports = function FinancialHealthController(model) {
+  const financialHealthModel = FinancialHealthModel(model);
   const usageDataModel = UsageDataModel(model);
 
   return { 
-    get(year, month, userId, clientIp) {
+    get(cedulaRnc, userId, clientIp) {
       return model
         .beginTransaction()
         .then(() => {
           return Promise.all([
-            inflationRateModel
-              .get(year, month),
+            financialHealthModel
+              .get(cedulaRnc),
             usageDataModel
-              .register(userId, clientIp, 'inflation-rate')
+              .register(userId, clientIp, 'financial-health')
           ]);
         })
         .then((data) => {
           return model
             .commit()
-            .then(() => Promise.resolve(data))
+            .then(() => data);
         })
         .then(([ results, insert ]) => {
-          if (results.length === 1) {
+          if (results.length > 0) {
             if (insert.affectedRows === 1) {
-              return Promise.resolve({
-                inflationRate: results[0].value,
-                month: results[0].month,
-                year: results[0].year,
-                createdAt: results[0].created_at
-              });
+              return Promise.resolve(results);
             } else {
               return Promise.reject(ErrorFactory('CAN_NOT_REGISTER_USAGE_DATA'));
             }
           } else {
-            return Promise.reject(ErrorFactory('INFLATION_RATE_NOT_FOUND'));
+            return Promise.reject(ErrorFactory('CLIENT_NOT_FOUND'));
           }
         })
         .catch((err) => {

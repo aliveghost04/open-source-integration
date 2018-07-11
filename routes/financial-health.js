@@ -2,22 +2,22 @@
 
 const router = require('express').Router();
 const ErrorFactory = require('../middlewares/error');
-const CreditHistoryController = require('../controllers/credit-history');
+const FinancialHealthController = require('../controllers/financial-health');
 
 router
   .route('/:cedulaRnc')
   .get((req, res, next) => {
     const model = req._database;
-    const creditHistoryController = CreditHistoryController(model);
+    const financialHealthController = FinancialHealthController(model);
 
     if (req.params.cedulaRnc) {
-      return creditHistoryController.get(
+      return financialHealthController.get(
         req.params.cedulaRnc,
         req.user.id,
         req.ip
       )
-      .then((creditHistory) => {
-        res.json(creditHistory);
+      .then((financialHealth) => {
+        res.json(financialHealth);
       })
       .catch(next);
     } else {
