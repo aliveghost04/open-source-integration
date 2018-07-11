@@ -1,9 +1,11 @@
 'use strict';
+
 const jwt = require('jsonwebtoken');
 const config = require('../config');
+const ErrorFactory = require('./error');
 
 module.exports = {
-  parseAuthentication(req, res, next) {
+  requireAuthentication(req, res, next) {
     const authorizationHeader = req.headers['authorization'];
 
     if (authorizationHeader) {
@@ -21,7 +23,7 @@ module.exports = {
         }
       );
     } else {
-      next();
+      next(ErrorFactory('FORBIDDEN'));
     }
   }
 };

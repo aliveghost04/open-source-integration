@@ -48,6 +48,10 @@ const errors = {
   'CLIENT_NOT_FOUND': {
     message: 'Can not found client for the especified cedula/rnc',
     status: 404
+  },
+  'FORBIDDEN': {
+    message: 'You do not have access to the resources',
+    status: 403
   }
 };
 

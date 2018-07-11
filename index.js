@@ -12,7 +12,7 @@ app
   .use(cors(config.cors))
   .use(connectionHandler)
   .use(bodyParser.json())
-  .use(auth.parseAuthentication)
+  .use(auth.requireAuthentication)
   .use(config.app.defaultRoute, routes);
 
 app.disable('x-powered-by');
