@@ -12,8 +12,7 @@ app
   .use(cors(config.cors))
   .use(connectionHandler)
   .use(bodyParser.json())
-  .use(auth.requireAuthentication)
-  .use(config.app.defaultRoute, routes);
+  .use(config.app.defaultRoute, [ auth.requireAuthentication ], routes);
 
 app.disable('x-powered-by');
 app.enable('trust proxy');
