@@ -8,10 +8,16 @@ module.exports = (app) => {
   });
 
   app.use((err, req, res, next) => {
-    res.status(err.status || 500);
-    
     console.error(err);
 
-    res.json(err);
+    res.status(err.status || 500);
+
+    let error = {};
+    Object.keys(err).forEach((key) => {
+      error[key] = err[key];
+    });
+    error['message'] = err.message;
+
+    res.json(error);
   });
 };

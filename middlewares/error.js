@@ -52,7 +52,11 @@ const errors = {
   'FORBIDDEN': {
     message: 'You do not have access to the resources',
     status: 403
-  }
+  },
+  'MISSING_CEDULA_OR_RNC': {
+    message: 'Missing cedulaOrRnc in url parameter',
+    status: 400
+  },
 };
 
 module.exports = (error) => {

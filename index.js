@@ -6,6 +6,7 @@ const connectionHandler = require('./middlewares/connection-handler');
 const routes = require('./routes');
 const config = require('./config');
 const cors = require('cors');
+const path = require('path');
 const bodyParser = require('body-parser');
 
 app
@@ -16,6 +17,8 @@ app
 
 app.disable('x-powered-by');
 app.enable('trust proxy');
+
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 errorHandler(app);
 

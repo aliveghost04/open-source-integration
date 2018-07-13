@@ -5,7 +5,7 @@ const ErrorFactory = require('../middlewares/error');
 const FinancialHealthController = require('../controllers/financial-health');
 
 router
-  .route('/:cedulaRnc')
+  .route('/:cedulaRnc?')
   .get((req, res, next) => {
     const model = req._database;
     const financialHealthController = FinancialHealthController(model);
@@ -21,7 +21,7 @@ router
       })
       .catch(next);
     } else {
-      next(ErrorFactory('MISSING_CURRENCY_CODE'));
+      next(ErrorFactory('MISSING_CEDULA_OR_RNC'));
     }
   })
   .all((req, res, next) => {
