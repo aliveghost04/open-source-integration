@@ -50,7 +50,7 @@ module.exports = function UsageDataModel(Model) {
           } else {
             return Model
               .query(
-                `SELECT u.user, ud.ip, ud.requested_service, ud.access_date
+                `SELECT u.user, ud.requested_service, ud.access_date
                 FROM usage_data ud
                 INNER JOIN users u
                   ON u.id = ud.user
